@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>OCOCO STUDIO</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-main: #F5F1ED;
+      --bg-section: #FDFCFB;
+      --text-primary: #8B7355;
+      --text-secondary: #A08A73;
+      --accent-primary: #B5A084;
+      --accent-secondary: #D4C4AA;
+      --border-color: #E8DDD1;
+      --table-header: #C9B896;
+    }
+    
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0; 
+      padding: 1rem;
+      background: var(--bg-main);
+      color: var(--text-primary);
+      min-height: 100vh;
+      -webkit-text-size-adjust: 100%;
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    .page-header {
+      background: var(--bg-main);
+      padding: 1rem;
+      text-align: center;
+      font-family: 'Noto Sans', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: var(--text-primary);
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      box-shadow: none;
+    }
+    
+    h2 {
+      margin-top: 0;
+      font-weight: 500;
+      color: var(--text-primary);
+      font-size: 1.25rem;
+    }
+    
+    .section {
+      margin: 1rem auto;
+      max-width: 1200px;
+      padding: 1rem;
+      background: var(--bg-section);
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(139, 115, 85, 0.1);
+      border: 1px solid var(--border-color);
+    }
+    
+    .header-section {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    
+    @media (min-width: 768px) {
+      .header-section {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    
+    @media (min-width: 1024px) {
+      .header-section {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    
+    label {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+      display: block;
+    }
+    
+    input[type="text"], input[type="number"], select {
+      padding: 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      width: 100%;
+      font-size: 16px;
+      background: var(--bg-section);
+      color: var(--text-primary);
+      min-height: 44px;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+    }
+    
+    select {
+      cursor: pointer;
+      background-image: url("data:image/svg+xml;charset=utf8,%3csvg fill='%23A08A73' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 0.7rem center;
+      background-size: 1.5rem;
+      padding-right: 2.5rem;
+    }
+    
+    input::placeholder {
+      color: var(--text-secondary);
+      opacity: 0.7;
+    }
+    
+    .member-input {
+      max-width: 100%;
+    }
+    
+    .table-container {
+      overflow-x: auto;
+      margin-top: 1rem;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      color: var(--text-primary);
+      min-width: 600px;
+      background: var(--bg-section);
+    }
+    
+    th, td {
+      border: 1px solid var(--border-color);
+      padding: 0.75rem 0.5rem;
+      text-align: center;
+      vertical-align: middle;
+    }
+    
+    th { 
+      background: var(--table-header);
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      white-space: nowrap;
+      font-weight: 600;
+    }
+    
+    td input, td select {
+      border: none;
+      background: transparent;
+      color: var(--text-primary);
+      text-align: center;
+      padding: 0.5rem;
+      width: 100%;
+      min-width: 60px;
+      min-height: 36px;
+      font-size: 16px;
+    }
+    
+    td select {
+      background-image: url("data:image/svg+xml;charset=utf8,%3csvg fill='%23A08A73' height='16' viewBox='0 0 24 24' width='16' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+      background-size: 1rem;
+      padding-right: 1.5rem;
+    }
+    
+    td input:focus, td select:focus {
+      outline: 2px solid var(--accent-primary);
+      border-radius: 4px;
+    }
+    
+    button {
+      background: var(--accent-primary);
+      color: var(--bg-section);
+      border: none;
+      padding: 0.75rem 1rem;
+      margin: 0.25rem;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s, color .2s;
+      min-height: 44px;
+      font-size: 16px;
+      touch-action: manipulation;
+    }
+    
+    button:hover, button:active {
+      background: #9f8568;
+      color: var(--bg-section);
+    }
+    
+    .actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    .btn-danger {
+      background: #C4998B;
+      color: var(--bg-section);
+    }
+    
+    .btn-danger:hover, .btn-danger:active {
+      background: #A87F6E;
+    }
+    
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .remove-btn {
+      background: #C4998B;
+      color: var(--bg-section);
+      padding: 0.5rem;
+      font-size: 0.8rem;
+      min-height: 36px;
+      min-width: 36px;
+      border: none;
+      cursor: pointer;
+    }
+    
+    .totals-section {
+      background: rgba(212, 196, 170, 0.2);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+      border: 1px solid var(--border-color);
+    }
+    
+    .totals-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+    
+    .totals-row:last-child {
+      margin-bottom: 0;
+      font-size: 1.1rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid var(--border-color);
+    }
+    
+    @media (max-width: 768px) {
+      body {
+        padding: 0.5rem;
+      }
+      
+      .page-header {
+        font-size: 1.25rem;
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+        letter-spacing: 2px;
+      }
+      
+      .section {
+        padding: 0.75rem;
+        margin: 0.75rem auto;
+      }
+      
+      h2 {
+        font-size: 1.1rem;
+      }
+      
+      .section-header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .section-header button {
+        width: 100%;
+      }
+      
+      .actions {
+        flex-direction: column;
+      }
+      
+      .actions button {
+        width: 100%;
+        margin: 0.25rem 0;
+      }
+      
+      th, td {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.85rem;
+      }
+      
+      th {
+        font-size: 0.8rem;
+      }
+      
+      td input, td select {
+        padding: 0.25rem;
+        font-size: 16px;
+      }
+      
+      .remove-btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.7rem;
+        min-width: 32px;
+        min-height: 32px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .table-container {
+        font-size: 0.8rem;
+      }
+      
+      table {
+        min-width: 500px;
+      }
+    }
+    
+    @media (max-width: 400px) {
+      .page-header {
+        font-size: 1.1rem;
+        letter-spacing: 1px;
+      }
+      
+      table {
+        min-width: 450px;
+      }
+      
+      th, td {
+        padding: 0.4rem 0.2rem;
+        font-size: 0.8rem;
+      }
+    }
+    
+    .generating-pdf {
+      opacity: 0.7;
+      pointer-events: none;
+    }
+    
+    .pdf-button {
+      position: relative;
+    }
+    
+    .pdf-button.loading::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 20px;
+      height: 20px;
+      margin: -10px 0 0 -10px;
+      border: 2px solid transparent;
+      border-top: 2px solid var(--bg-section);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-header">O C O C O &nbsp; S T U D I O</div>
+
+<div class="section">
+  <div class="header-section">
+    <div>
+      <label for="memberName">Member:</label>
+      <input id="memberName" type="text" placeholder="Inserisci nome membro" class="member-input">
+    </div>
+    <div>
+      <label for="paymentMethod">Modalità di pagamento:</label>
+      <select id="paymentMethod">
+        <option value="Contanti">Contanti</option>
+        <option value="Carta">Carta</option>
+        <option value="Bonifico">Bonifico</option>
+      </select>
+    </div>
+    <div>
+      <label for="acconto">Acconto:</label>
+      <input id="acconto" type="number" placeholder="0.00" step="0.01" min="0">
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>Nuovo Ordine</h2>
+  <div class="table-container">
+    <table id="orderTable">
+      <thead>
+        <tr>
+          <th>Articolo</th>
+          <th>Taglia</th>
+          <th>Qtà</th>
+          <th>Prezzo</th>
+          <th>Totale</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  
+  <div class="totals-section">
+    <div class="totals-row">
+      <span>Subtotale:</span>
+      <span id="subtotal">0.00 €</span>
+    </div>
+    <div class="totals-row">
+      <span>Acconto:</span>
+      <span id="displayAcconto">0.00 €</span>
+    </div>
+    <div class="totals-row">
+      <span>Residuo:</span>
+      <span id="residuo">0.00 €</span>
+    </div>
+  </div>
+  
+  <div class="actions">
+    <button onclick="addRow()" id="addRowBtn">+ Aggiungi Riga</button>
+    <button onclick="generatePDF()" class="pdf-button" id="pdfBtn">📄 Genera PDF</button>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <h2>Storico Ordini</h2>
+    <button class="btn-danger" onclick="clearHistory()">🗑️ Pulisci Storico</button>
+  </div>
+  <div class="table-container">
+    <table id="historyTable">
+      <thead>
+        <tr><th>Data</th><th>Member</th><th>Pagamento</th><th>Totale</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const orderTable = document.querySelector('#orderTable tbody');
+const historyTable = document.querySelector('#historyTable tbody');
+let history = [];
+
+function addRow() {
+  const row = orderTable.insertRow();
+  
+  // Articolo
+  const articoloCell = row.insertCell();
+  const articoloInput = document.createElement('input');
+  articoloInput.type = 'text';
+  articoloInput.placeholder = 'Nome articolo';
+  articoloCell.appendChild(articoloInput);
+  
+  // Taglia
+  const tagliaCell = row.insertCell();
+  const tagliaSelect = document.createElement('select');
+  const taglie = ['XXS', 'XS', 'S', 'M', 'L'];
+  taglie.forEach(taglia => {
+    const option = document.createElement('option');
+    option.value = taglia;
+    option.textContent = taglia;
+    tagliaSelect.appendChild(option);
+  });
+  tagliaCell.appendChild(tagliaSelect);
+  
+  // Quantità
+  const quantitaCell = row.insertCell();
+  const quantitaInput = document.createElement('input');
+  quantitaInput.type = 'number';
+  quantitaInput.value = 1;
+  quantitaInput.min = '1';
+  quantitaInput.step = '1';
+  quantitaInput.inputMode = 'numeric';
+  quantitaCell.appendChild(quantitaInput);
+  
+  // Prezzo
+  const prezzoCell = row.insertCell();
+  const prezzoInput = document.createElement('input');
+  prezzoInput.type = 'number';
+  prezzoInput.value = 0;
+  prezzoInput.step = '0.01';
+  prezzoInput.min = '0';
+  prezzoInput.inputMode = 'decimal';
+  prezzoInput.placeholder = '0.00';
+  prezzoCell.appendChild(prezzoInput);
+  
+  // Total cell
+  const totalCell = row.insertCell();
+  totalCell.innerText = '0.00 €';
+  totalCell.style.fontWeight = 'bold';
+  
+  // Action cell with remove button
+  const actionCell = row.insertCell();
+  const removeBtn = document.createElement('button');
+  removeBtn.innerText = '✕';
+  removeBtn.className = 'remove-btn';
+  removeBtn.title = 'Rimuovi riga';
+  actionCell.appendChild(removeBtn);
+  
+  // Attach event listeners
+  setupRowEventListeners(row, articoloInput, tagliaSelect, quantitaInput, prezzoInput, removeBtn);
+  
+  updateRow();
+  
+  // Focus on article input for better UX
+  setTimeout(() => {
+    articoloInput.focus();
+  }, 100);
+}
+
+function setupRowEventListeners(row, articoloInput, tagliaSelect, quantitaInput, prezzoInput, removeBtn) {
+  // Input event listeners
+  articoloInput.addEventListener('input', updateRow);
+  articoloInput.addEventListener('change', updateRow);
+  tagliaSelect.addEventListener('change', updateRow);
+  quantitaInput.addEventListener('input', updateRow);
+  quantitaInput.addEventListener('change', updateRow);
+  prezzoInput.addEventListener('input', updateRow);
+  prezzoInput.addEventListener('change', updateRow);
+  
+  // Remove button listener
+  removeBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (confirm('Rimuovere questa riga?')) {
+      row.remove();
+      updateRow();
+    }
+  });
+  
+  // Mobile-specific event listeners
+  const inputs = [articoloInput, quantitaInput, prezzoInput];
+  const selects = [tagliaSelect];
+  
+  inputs.forEach(input => {
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        this.blur();
+      }
+    });
+  });
+}
+
+function updateRow() {
+  let grandTotal = 0;
+  Array.from(orderTable.rows).forEach(row => {
+    if (row.cells.length >= 5) {
+      const quantita = parseFloat(row.cells[2].firstChild.value) || 0;
+      const prezzo = parseFloat(row.cells[3].firstChild.value) || 0;
+      const totale = quantita * prezzo;
+      row.cells[4].innerText = totale.toFixed(2) + ' €';
+      grandTotal += totale;
+    }
+  });
+  
+  document.getElementById('subtotal').innerText = grandTotal.toFixed(2) + ' €';
+  updateResiduo();
+}
+
+function updateResiduo() {
+  const subtotalText = document.getElementById('subtotal').innerText;
+  const subtotal = parseFloat(subtotalText.replace(' €', '')) || 0;
+  const acconto = parseFloat(document.getElementById('acconto').value) || 0;
+  const residuo = Math.max(0, subtotal - acconto);
+  
+  document.getElementById('displayAcconto').innerText = acconto.toFixed(2) + ' €';
+  document.getElementById('residuo').innerText = residuo.toFixed(2) + ' €';
+}
+
+async function generatePDF() {
+  const pdfBtn = document.getElementById('pdfBtn');
+  const originalText = pdfBtn.innerHTML;
+  
+  try {
+    pdfBtn.classList.add('loading');
+    pdfBtn.innerHTML = 'Generando...';
+    pdfBtn.disabled = true;
+    document.body.classList.add('generating-pdf');
+    
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ 
+      unit: 'pt', 
+      format: 'a4',
+      putOnlyUsedFonts: true,
+      compress: true
+    });
+    
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const member = document.getElementById('memberName').value || '—';
+    const paymentMethod = document.getElementById('paymentMethod').value;
+    const acconto = parseFloat(document.getElementById('acconto').value) || 0;
+    
+    // Header
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(24);
+    doc.text('O C O C O   S T U D I O', pageWidth / 2, 50, { align: 'center' });
+    doc.setDrawColor(200);
+    doc.line(40, 60, pageWidth - 40, 60);
+    
+    // Order info
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
+    const now = new Date();
+    const dateTime = now.toLocaleDateString('it-IT') + ' ' + now.toLocaleTimeString('it-IT', {hour: '2-digit', minute: '2-digit'});
+    const orderNo = Math.floor(Math.random() * 90000) + 10000;
+    doc.text(`Data: ${dateTime}`, 40, 85);
+    doc.text(`Ricevuta / Ordine N°: ${orderNo}`, 40, 100);
+    doc.text(`Member: ${member}`, 40, 115);
+    doc.text(`Modalità di pagamento: ${paymentMethod}`, 40, 130);
+    
+    // Table
+    let y = 165;
+    const colX = [40, 180, 250, 320, 390, 460];
+    
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    const headers = ['Articolo', 'Taglia', 'Qtà', 'Prezzo', 'Totale'];
+    headers.forEach((header, i) => {
+      doc.text(header, colX[i], y);
+    });
+    
+    y += 12;
+    doc.line(40, y, pageWidth - 40, y);
+    y += 15;
+    
+    // Table rows
+    doc.setFont('helvetica', 'normal');
+    let subtotal = 0;
+    const rows = Array.from(orderTable.rows);
+    
+    rows.forEach((row, idx) => {
+      if (y > 720) {
+        doc.addPage();
+        y = 50;
+      }
+      
+      const articolo = row.cells[0].firstChild.value || '-';
+      const taglia = row.cells[1].firstChild.value || '-';
+      const quantita = parseFloat(row.cells[2].firstChild.value) || 0;
+      const prezzo = parseFloat(row.cells[3].firstChild.value) || 0;
+      const totale = quantita * prezzo;
+      subtotal += totale;
+      
+      if (idx % 2 === 0) {
+        doc.setFillColor(245);
+        doc.rect(40, y - 10, pageWidth - 80, 15, 'F');
+      }
+      
+      const displayArticolo = articolo.length > 15 ? articolo.substring(0, 12) + '...' : articolo;
+      
+      doc.text(displayArticolo, colX[0], y);
+      doc.text(taglia, colX[1], y, { align: 'center' });
+      doc.text(String(quantita), colX[2], y, { align: 'center' });
+      doc.text(prezzo.toFixed(2) + '€', colX[3], y, { align: 'center' });
+      doc.text(totale.toFixed(2) + '€', colX[4], y, { align: 'center' });
+      y += 20;
+    });
+    
+    // Totals
+    y += 20;
+    const residuo = Math.max(0, subtotal - acconto);
+    
+    doc.setDrawColor(200);
+    doc.roundedRect(pageWidth - 250, y, 210, 80, 6, 6);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
+    doc.text(`Subtotale: ${subtotal.toFixed(2)} €`, pageWidth - 145, y + 20, { align: 'center' });
+    doc.text(`Acconto: ${acconto.toFixed(2)} €`, pageWidth - 145, y + 40, { align: 'center' });
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    doc.setTextColor(39, 174, 96);
+    doc.text(`Residuo: ${residuo.toFixed(2)} €`, pageWidth - 145, y + 65, { align: 'center' });
+    doc.setTextColor(0);
+    
+    // Footer
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'italic');
+    doc.text('Grazie per il tuo acquisto! — O C O C O   S T U D I O', pageWidth / 2, 780, { align: 'center' });
+    
+    const filename = `ricevuta_ococo_${orderNo}.pdf`;
+    doc.save(filename);
+    
+    // Update history
+    history.unshift({ 
+      date: dateTime, 
+      member, 
+      paymentMethod,
+      total: subtotal, 
+      orderNo 
+    });
+    saveHistory();
+    renderHistory();
+    
+    if (window.innerWidth <= 768) {
+      alert('PDF generato e scaricato con successo!');
+    }
+    
+  } catch (error) {
+    console.error('Errore durante la generazione del PDF:', error);
+    alert('Errore durante la generazione del PDF. Riprova.');
+  } finally {
+    pdfBtn.classList.remove('loading');
+    pdfBtn.innerHTML = originalText;
+    pdfBtn.disabled = false;
+    document.body.classList.remove('generating-pdf');
+  }
+}
+
+function renderHistory() {
+  historyTable.innerHTML = '';
+  history.forEach(h => {
+    const row = historyTable.insertRow();
+    row.insertCell().innerText = h.date;
+    row.insertCell().innerText = h.member;
+    row.insertCell().innerText = h.paymentMethod || '-';
+    row.insertCell().innerText = h.total.toFixed(2) + ' €';
+  });
+}
+
+function saveHistory() {
+  try {
+    window.ococoHistory = history;
+  } catch (error) {
+    console.warn('Impossibile salvare lo storico:', error);
+  }
+}
+
+function loadHistory() {
+  try {
+    if (window.ococoHistory) {
+      history = window.ococoHistory;
+      renderHistory();
+    }
+  } catch (error) {
+    console.warn('Errore nel caricamento dello storico:', error);
+    history = [];
+  }
+}
+
+function clearHistory() {
+  if (confirm("Vuoi davvero cancellare tutto lo storico?")) {
+    history = [];
+    saveHistory();
+    renderHistory();
+    alert('Storico cancellato!');
+  }
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+  loadHistory();
+  addRow();
+  
+  // Set up acconto input listeners
+  const accontoInput = document.getElementById('acconto');
+  accontoInput.addEventListener('input', updateResiduo);
+  accontoInput.addEventListener('change', updateResiduo);
+});
+
+// Handle window resize/orientation changes
+window.addEventListener('resize', function() {
+  setTimeout(() => {
+    updateRow();
+  }, 100);
+});
+</script>
+</body>
+</html>
