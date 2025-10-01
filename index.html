@@ -46,6 +46,7 @@
       border-radius: 8px;
       margin-bottom: 1.5rem;
       box-shadow: none;
+      text-transform: lowercase;
     }
     
     h2 {
@@ -372,7 +373,7 @@
 </head>
 <body>
 
-<div class="page-header">O C O C O &nbsp; S T U D I O</div>
+<div class="page-header">o c o c o &nbsp; s t u d i o</div>
 
 <div class="section">
   <div class="header-section">
@@ -609,7 +610,7 @@ async function generatePDF() {
     // Header
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(24);
-    doc.text('O C O C O   S T U D I O', pageWidth / 2, 50, { align: 'center' });
+    doc.text('o c o c o   s t u d i o', pageWidth / 2, 50, { align: 'center' });
     doc.setDrawColor(200);
     doc.line(40, 60, pageWidth - 40, 60);
     
@@ -626,13 +627,14 @@ async function generatePDF() {
     
     // Table
     let y = 165;
-    const colX = [40, 180, 250, 320, 390, 460];
+    const colX = [40, 230, 300, 370, 440, 510];
     
     doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
     const headers = ['Articolo', 'Taglia', 'Qtà', 'Prezzo', 'Totale'];
     headers.forEach((header, i) => {
-      doc.text(header, colX[i], y);
+      const xPos = i === 0 ? colX[i] + 95 : colX[i] + 35;
+      doc.text(header, xPos, y, { align: 'center' });
     });
     
     y += 12;
@@ -662,13 +664,13 @@ async function generatePDF() {
         doc.rect(40, y - 10, pageWidth - 80, 15, 'F');
       }
       
-      const displayArticolo = articolo.length > 15 ? articolo.substring(0, 12) + '...' : articolo;
+      const displayArticolo = articolo.length > 25 ? articolo.substring(0, 22) + '...' : articolo;
       
-      doc.text(displayArticolo, colX[0], y);
-      doc.text(taglia, colX[1], y, { align: 'center' });
-      doc.text(String(quantita), colX[2], y, { align: 'center' });
-      doc.text(prezzo.toFixed(2) + '€', colX[3], y, { align: 'center' });
-      doc.text(totale.toFixed(2) + '€', colX[4], y, { align: 'center' });
+      doc.text(displayArticolo, colX[0] + 95, y, { align: 'center' });
+      doc.text(taglia, colX[1] + 35, y, { align: 'center' });
+      doc.text(String(quantita), colX[2] + 35, y, { align: 'center' });
+      doc.text(prezzo.toFixed(2) + '€', colX[3] + 35, y, { align: 'center' });
+      doc.text(totale.toFixed(2) + '€', colX[4] + 35, y, { align: 'center' });
       y += 20;
     });
     
@@ -691,7 +693,7 @@ async function generatePDF() {
     // Footer
     doc.setFontSize(9);
     doc.setFont('helvetica', 'italic');
-    doc.text('Grazie per il tuo acquisto! — O C O C O   S T U D I O', pageWidth / 2, 780, { align: 'center' });
+    doc.text('Grazie per il tuo acquisto! — o c o c o   s t u d i o', pageWidth / 2, 780, { align: 'center' });
     
     const filename = `ricevuta_ococo_${orderNo}.pdf`;
     doc.save(filename);
