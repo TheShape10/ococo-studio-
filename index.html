@@ -737,7 +737,7 @@ function renderHistory() {
 
 function saveHistory() {
   try {
-    window.ococoHistory = history;
+    localStorage.setItem('ococoHistory', JSON.stringify(history));
   } catch (error) {
     console.warn('Impossibile salvare lo storico:', error);
   }
@@ -745,8 +745,9 @@ function saveHistory() {
 
 function loadHistory() {
   try {
-    if (window.ococoHistory) {
-      history = window.ococoHistory;
+    const saved = localStorage.getItem('ococoHistory');
+    if (saved) {
+      history = JSON.parse(saved);
       renderHistory();
     }
   } catch (error) {
