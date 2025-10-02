@@ -165,7 +165,7 @@
     }
     
     td select {
-      background-image: url("data:image/svg+xml;charset=utf8,%3csvg fill='%23A08A73' height='16' viewBox='0 0 24 24' width='16' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+      background-image: none;
       background-size: 1rem;
       padding-right: 1.5rem;
     }
@@ -403,6 +403,7 @@
       <thead>
         <tr>
           <th>Articolo</th>
+          <th>Colore</th>
           <th>Taglia</th>
           <th>Qtà</th>
           <th>Prezzo</th>
@@ -443,7 +444,7 @@
   <div class="table-container">
     <table id="historyTable">
       <thead>
-        <tr><th>Data</th><th>Member</th><th>Pagamento</th><th>Totale</th></tr>
+        <tr><th>Data</th><th>Member</th><th>Pagamento</th><th>Acconto</th><th>Totale</th></tr>
       </thead>
       <tbody></tbody>
     </table>
@@ -464,6 +465,13 @@ function addRow() {
   articoloInput.type = 'text';
   articoloInput.placeholder = 'Nome articolo';
   articoloCell.appendChild(articoloInput);
+  
+  // Colore
+  const coloreCell = row.insertCell();
+  const coloreInput = document.createElement('input');
+  coloreInput.type = 'text';
+  coloreInput.placeholder = 'Colore';
+  coloreCell.appendChild(coloreInput);
   
   // Taglia
   const tagliaCell = row.insertCell();
@@ -512,7 +520,7 @@ function addRow() {
   actionCell.appendChild(removeBtn);
   
   // Attach event listeners
-  setupRowEventListeners(row, articoloInput, tagliaSelect, quantitaInput, prezzoInput, removeBtn);
+  setupRowEventListeners(row, articoloInput, coloreInput, tagliaSelect, quantitaInput, prezzoInput, removeBtn);
   
   updateRow();
   
@@ -522,10 +530,12 @@ function addRow() {
   }, 100);
 }
 
-function setupRowEventListeners(row, articoloInput, tagliaSelect, quantitaInput, prezzoInput, removeBtn) {
+function setupRowEventListeners(row, articoloInput, coloreInput, tagliaSelect, quantitaInput, prezzoInput, removeBtn) {
   // Input event listeners
   articoloInput.addEventListener('input', updateRow);
   articoloInput.addEventListener('change', updateRow);
+  coloreInput.addEventListener('input', updateRow);
+  coloreInput.addEventListener('change', updateRow);
   tagliaSelect.addEventListener('change', updateRow);
   quantitaInput.addEventListener('input', updateRow);
   quantitaInput.addEventListener('change', updateRow);
@@ -543,7 +553,7 @@ function setupRowEventListeners(row, articoloInput, tagliaSelect, quantitaInput,
   });
   
   // Mobile-specific event listeners
-  const inputs = [articoloInput, quantitaInput, prezzoInput];
+  const inputs = [articoloInput, coloreInput, quantitaInput, prezzoInput];
   const selects = [tagliaSelect];
   
   inputs.forEach(input => {
@@ -559,11 +569,11 @@ function setupRowEventListeners(row, articoloInput, tagliaSelect, quantitaInput,
 function updateRow() {
   let grandTotal = 0;
   Array.from(orderTable.rows).forEach(row => {
-    if (row.cells.length >= 5) {
-      const quantita = parseFloat(row.cells[2].firstChild.value) || 0;
-      const prezzo = parseFloat(row.cells[3].firstChild.value) || 0;
+    if (row.cells.length >= 6) {
+      const quantita = parseFloat(row.cells[3].firstChild.value) || 0;
+      const prezzo = parseFloat(row.cells[4].firstChild.value) || 0;
       const totale = quantita * prezzo;
-      row.cells[4].innerText = totale.toFixed(2) + ' €';
+      row.cells[5].innerText = totale.toFixed(2) + ' €';
       grandTotal += totale;
     }
   });
@@ -627,13 +637,16 @@ async function generatePDF() {
     
     // Table
     let y = 165;
-    const colX = [40, 230, 300, 370, 440, 510];
+    const colX = [40, 180, 270, 340, 410, 480];
     
     doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
-    const headers = ['Articolo', 'Taglia', 'Qtà', 'Prezzo', 'Totale'];
+    const headers = ['Articolo', 'Colore', 'Taglia', 'Qtà', 'Prezzo', 'Totale'];
     headers.forEach((header, i) => {
-      const xPos = i === 0 ? colX[i] + 95 : colX[i] + 35;
+      let xPos;
+      if (i === 0) xPos = colX[i] + 70;
+      else if (i === 1) xPos = colX[i] + 45;
+      else xPos = colX[i] + 35;
       doc.text(header, xPos, y, { align: 'center' });
     });
     
@@ -653,9 +666,10 @@ async function generatePDF() {
       }
       
       const articolo = row.cells[0].firstChild.value || '-';
-      const taglia = row.cells[1].firstChild.value || '-';
-      const quantita = parseFloat(row.cells[2].firstChild.value) || 0;
-      const prezzo = parseFloat(row.cells[3].firstChild.value) || 0;
+      const colore = row.cells[1].firstChild.value || '-';
+      const taglia = row.cells[2].firstChild.value || '-';
+      const quantita = parseFloat(row.cells[3].firstChild.value) || 0;
+      const prezzo = parseFloat(row.cells[4].firstChild.value) || 0;
       const totale = quantita * prezzo;
       subtotal += totale;
       
@@ -665,12 +679,14 @@ async function generatePDF() {
       }
       
       const displayArticolo = articolo.length > 25 ? articolo.substring(0, 22) + '...' : articolo;
+      const displayColore = colore.length > 12 ? colore.substring(0, 9) + '...' : colore;
       
-      doc.text(displayArticolo, colX[0] + 95, y, { align: 'center' });
-      doc.text(taglia, colX[1] + 35, y, { align: 'center' });
-      doc.text(String(quantita), colX[2] + 35, y, { align: 'center' });
-      doc.text(prezzo.toFixed(2) + '€', colX[3] + 35, y, { align: 'center' });
-      doc.text(totale.toFixed(2) + '€', colX[4] + 35, y, { align: 'center' });
+      doc.text(displayArticolo, colX[0] + 70, y, { align: 'center' });
+      doc.text(displayColore, colX[1] + 45, y, { align: 'center' });
+      doc.text(taglia, colX[2] + 35, y, { align: 'center' });
+      doc.text(String(quantita), colX[3] + 35, y, { align: 'center' });
+      doc.text(prezzo.toFixed(2) + '€', colX[4] + 35, y, { align: 'center' });
+      doc.text(totale.toFixed(2) + '€', colX[5] + 35, y, { align: 'center' });
       y += 20;
     });
     
@@ -703,6 +719,7 @@ async function generatePDF() {
       date: dateTime, 
       member, 
       paymentMethod,
+      acconto: acconto,
       total: subtotal, 
       orderNo 
     });
@@ -731,6 +748,7 @@ function renderHistory() {
     row.insertCell().innerText = h.date;
     row.insertCell().innerText = h.member;
     row.insertCell().innerText = h.paymentMethod || '-';
+    row.insertCell().innerText = (h.acconto || 0).toFixed(2) + ' €';
     row.insertCell().innerText = h.total.toFixed(2) + ' €';
   });
 }
